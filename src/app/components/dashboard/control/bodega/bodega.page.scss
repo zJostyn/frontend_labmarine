@@ -1,142 +1,241 @@
-/* CSS para el contenido */
-.content-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding-top: 20px;
-  padding-bottom: 20px;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-/* Estilo para el formulario */
-.form-container {
-  width: 90%;
-  max-width: 600px;
-  margin-bottom: 30px;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+$primary: var(--ion-color-primary, #3880ff);
+$success: #4CAF50;
+$warning: #ff9800;
+$danger: #f44336;
+$light-bg: #f8f9fa;
+$white: #ffffff;
+$shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+.content-container {
+    --background: #f4f5f8;
+    font-family: 'Inter', sans-serif;
 }
 
 h3 {
-  margin-bottom: 20px;
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: 500;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #333;
 }
 
-/* Estilo de los formularios de Ion */
+/* ---------------------------------------------------- */
+/* 1. LAYOUT PRINCIPAL (GRID para PC) */
+/* ---------------------------------------------------- */
+.main-layout-grid {
+    width: 100%;
+    max-width: 1400px; /* Ancho máximo amplio para PC */
+    margin: 20px auto;
+    display: grid;
+    gap: 30px;
+    
+    /* Configuración por defecto para PC (Dos columnas) */
+    grid-template-columns: 350px 1fr; /* Formulario fijo (350px) y el resto para Tablas */
+    grid-template-areas: "form tables"; 
+
+    @media (max-width: 992px) {
+        /* Configuración para Tablet/Móvil (Una columna) */
+        grid-template-columns: 1fr;
+        grid-template-areas: "form" "tables";
+        padding: 0 10px;
+        margin-top: 0;
+    }
+}
+
+/* Contenedores de Bloque */
+.form-container,
+.table-container,
+.totals-container {
+    background-color: $white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: $shadow;
+    transition: all 0.3s ease;
+}
+
+/* Área del Formulario */
+.form-container {
+    grid-area: form;
+    max-height: 400px; /* Altura fija para que no se estire */
+    position: sticky;
+    top: 20px; /* Para que se mantenga visible al hacer scroll */
+
+    @media (max-width: 992px) {
+        position: static;
+        max-height: none;
+    }
+}
+
+/* Área de Tablas (Movimientos + Totales) */
+.tables-wrapper {
+    grid-area: tables;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ---------------------------------------------------- */
+/* 2. FORMULARIO */
+/* ---------------------------------------------------- */
 ion-item {
-  margin-bottom: 15px;
+    --background: #f9f9f9;
+    --border-radius: 8px;
+    --border-color: #ddd;
+    --border-width: 1px;
+    --inner-border-width: 0;
+    --padding-start: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+ion-label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+ion-input {
+    --padding-start: 0;
+    --padding-end: 0;
 }
 
 ion-button {
-  margin-top: 20px;
+    --background: $success;
+    --background-activated: darken($success, 10%);
+    --border-radius: 8px;
+    font-weight: 600;
 }
 
-/* Submenú de cantidad devuelta */
-.sub-devol {
-  margin-top: 8px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-/* Estilo de la tabla */
+/* ---------------------------------------------------- */
+/* 3. TABLA DE MOVIMIENTOS */
+/* ---------------------------------------------------- */
 .table-container {
-  width: 90%;
-  max-width: 900px;
-  margin-top: 30px;
+    padding: 0; /* Quitamos el padding para que la tabla llegue a los bordes */
+    max-height: 550px; 
+    overflow: hidden; /* Asegura que el scroll lo maneje el contenedor interior */
+}
+
+.table-container h3 {
+    padding: 25px 25px 10px 25px; /* Restauramos el padding del título */
+}
+
+.responsive-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 25px 25px 25px; /* Padding inferior y lateral para el scroll */
 }
 
 .movimientos-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.movimientos-table th, .movimientos-table td {
-  padding: 15px;
-  text-align: center;
-  border: 1px solid #ddd;
-  font-size: 14px;
-}
-
-.movimientos-table th {
-  background-color: #4CAF50;
-  color: white;
-  font-weight: bold;
-}
-
-.movimientos-table tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-.movimientos-table tr:hover {
-  background-color: #ddd;
-}
-
-/* Estilo de los select y input */
-select, ion-input {
-  padding: 5px;
-  width: 100%;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-select {
-  background-color: #fff;
-  border-color: #ccc;
-}
-
-/* Cambiar color de toda la fila cuando Devuelve está vacío (Ninguno) */
-.red-row {
-  color: rgb(255, 0, 0);  /* Cambiar el color del texto para que sea legible */
-}
-
-/* Otros estilos de la tabla */
-.movimientos-table th, .movimientos-table td {
-  padding: 15px;
-  text-align: center;
-  border: 1px solid #ddd;
-  font-size: 14px;
-}
-
-.movimientos-table th {
-  background-color: #4CAF50;
-  color: white;
-  font-weight: bold;
-}
-
-.movimientos-table tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-.movimientos-table tr:hover {
-  background-color: #ddd;
-}
-
-/* Submenú de cantidad devuelta */
-.sub-devol {
-  margin-top: 8px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-/* Responsividad: La tabla y el formulario se adaptan a pantallas pequeñas */
-@media (max-width: 768px) {
-  .movimientos-table th, .movimientos-table td {
-    font-size: 12px;
-    padding: 10px;
-  }
-
-  .form-container {
     width: 100%;
-    padding: 15px;
-  }
+    min-width: 700px; /* Ancho mínimo para evitar que se aplaste */
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: $white;
+}
+
+.movimientos-table th,
+.movimientos-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.movimientos-table th {
+    background-color: $primary;
+    color: $white;
+    font-weight: 600;
+    position: sticky;
+    top: 0; /* Fija el encabezado */
+    z-index: 10;
+}
+
+.movimientos-table tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.movimientos-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.warn-row {
+    background-color: #ffe5e5 !important;
+    color: $danger;
+    font-weight: 600;
+}
+
+.movimientos-table select {
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-size: 0.8rem;
+    background-color: $white;
+}
+
+/* ---------------------------------------------------- */
+/* 4. TABLA DE TOTALES */
+/* ---------------------------------------------------- */
+.totals-container {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.totals-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    text-align: center;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.totals-table th,
+.totals-table td {
+    padding: 15px 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $white;
+    border: none;
+}
+
+.totals-table th {
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+/* Colores de las celdas de totales */
+.bg-kilos { background-color: #5bc0de; } /* Azul */
+.bg-sacos { background-color: $primary; } /* Azul oscuro */
+.bg-devuelto { background-color: $success; } /* Verde */
+.bg-restante { background-color: #f0ad4e; } /* Naranja/Amarillo */
+.bg-restante:has(td) { background-color: #d9534f; } /* Rojo si es la celda de resultado */
+
+/* Para las celdas de datos */
+.totals-table tbody td {
+    color: #333; /* Color de texto oscuro para los valores */
+    font-size: 1.2rem;
+    background-color: #eef;
+    border-top: 2px solid $white;
+    font-weight: 700;
+}
+
+/* Adaptación Mobile (Menos de 600px) */
+@media (max-width: 600px) {
+    .form-container,
+    .table-container,
+    .totals-container {
+        padding: 15px;
+    }
+    
+    .totals-table th,
+    .totals-table td {
+        padding: 10px 5px;
+        font-size: 0.8rem;
+    }
+
+    .totals-table tbody td {
+        font-size: 1rem;
+    }
 }

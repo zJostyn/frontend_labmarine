@@ -1,12 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+$success: #4CAF50;
+$danger: #f44336;
+$shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+:host {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Encabezado */
 ion-header {
-  background-color: #4caf50;
-  color: white;
+  ion-toolbar {
+    --background: $success;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 }
 
+/* Contenido Principal */
 ion-content {
-  padding: 20px;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --background: #f4f5f8;
 }
 
-ion-button {
-  margin-top: 20px;
+.modal-content-wrapper {
+  padding-top: 10px;
+}
+
+/* Card de Contexto (Información del Movimiento) */
+.context-card {
+  --background: #fff;
+  border-left: 5px solid $success;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+
+  ion-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+  }
+  ion-card-subtitle {
+    color: $success;
+  }
+  ion-card-content p {
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+}
+
+.total-sacos {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  padding-top: 5px;
+}
+
+.badge {
+  display: inline-block;
+  background-color: $success;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 5px;
+  margin-left: 10px;
+  font-weight: 700;
+}
+
+/* Input de Cantidad */
+.input-item {
+  --background: white;
+  --border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.3s;
+
+  ion-label {
+    font-weight: 600;
+    color: #555;
+    display: flex;
+    align-items: center;
+
+    ion-icon {
+      margin-right: 5px;
+      color: $success;
+    }
+  }
+
+  ion-input {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: right;
+    color: $success;
+    --padding-end: 8px;
+  }
+}
+
+/* Pie de página y Botón */
+ion-footer {
+  background-color: white;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+  border-top: 1px solid #eee;
+
+  ion-button {
+    --border-radius: 8px;
+    font-size: 1rem;
+    --background: $success;
+    --background-activated: darken($success, 10%);
+    
+    &[disabled] {
+      opacity: 0.6;
+      --background: #ccc;
+    }
+  }
 }

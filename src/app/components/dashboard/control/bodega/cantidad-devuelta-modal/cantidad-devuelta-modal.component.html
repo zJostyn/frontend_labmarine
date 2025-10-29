@@ -1,16 +1,62 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Cantidad Devuelta</ion-title>
+  <ion-toolbar color="success">
+    <ion-title>Registrar Devolución</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="dismiss()">Cerrar</ion-button>
+      <ion-button (click)="cancelar()" color="light">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-item>
-    <ion-label position="stacked">Cantidad Devuelta</ion-label>
-    <ion-input [(ngModel)]="movimiento.cant_devuelta" type="number" required></ion-input>
-  </ion-item>
-  <ion-button expand="full" (click)="guardar()">Guardar</ion-button>
+<ion-content class="ion-padding">
+  
+  <div class="modal-content-wrapper">
+    
+    <!-- Información de contexto para el usuario -->
+    <ion-card class="ion-margin-bottom context-card">
+      <ion-card-header>
+        <ion-card-title>Movimiento de Bodega</ion-card-title>
+        <ion-card-subtitle>{{ movimiento.responsable }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p><strong>Descripción:</strong> {{ movimiento.descripcion }}</p>
+        <p class="total-sacos"><strong>Sacos Llevados:</strong> <span class="badge">{{ movimiento.sacos }}</span></p>
+        <p class="ion-text-wrap ion-text-start ion-margin-top ion-note">
+          Ingrese la cantidad exacta de sacos que la persona **{{ movimiento.responsable }}** está devolviendo.
+        </p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Formulario de ingreso -->
+    <ion-item lines="none" class="ion-margin-vertical input-item">
+      <ion-label position="stacked">
+        <ion-icon name="cube-outline" slot="start"></ion-icon>
+        Cantidad de Sacos Devueltos
+      </ion-label>
+      <ion-input 
+        [(ngModel)]="cantidadDevuelta" 
+        type="number" 
+        placeholder="0"
+        inputmode="numeric" 
+        [min]="0" 
+        [max]="movimiento.sacos"
+        required
+      ></ion-input>
+    </ion-item>
+  </div>
+
 </ion-content>
+
+<ion-footer class="ion-padding">
+  <!-- Utilizamos el botón con validación para evitar errores -->
+  <ion-button 
+    expand="full" 
+    color="success" 
+    (click)="guardar()"
+    [disabled]="!cantidadDevuelta || cantidadDevuelta < 0 || cantidadDevuelta > movimiento.sacos"
+  >
+    <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+    Confirmar y Guardar Devolución
+  </ion-button>
+</ion-footer>

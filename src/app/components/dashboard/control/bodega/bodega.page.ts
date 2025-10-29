@@ -1,195 +1,221 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ModalController } from '@ionic/angular';
+import { Subscription } from 'rxjs'; 
 import { BodegaMovimiento } from 'src/app/interfaces/bodega';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { BodegaService } from 'src/app/services/global/bodega.service';
-import { ModalController } from '@ionic/angular';
 import { CantidadDevueltaModalComponent } from './cantidad-devuelta-modal/cantidad-devuelta-modal.component';
+
 @Component({
-  selector: 'app-bodega',
-  templateUrl: './bodega.page.html',
-  styleUrls: ['./bodega.page.scss'],
-  imports: [IonicModule, FormsModule, CommonModule, ReactiveFormsModule],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  selector: 'app-bodega',
+  templateUrl: './bodega.page.html',
+  styleUrls: ['./bodega.page.scss'],
+  imports: [IonicModule, FormsModule, CommonModule, ReactiveFormsModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class BodegaPage implements OnInit {
+export class BodegaPage implements OnInit, OnDestroy { 
 
-  movimientos: BodegaMovimiento[] = [];
-  // Guarda la selección previa de "devuelve" para poder revertir si no es editable
-  private devuelvePrevio = new Map<number, '' | 'Si' | 'No'>();
+  movimientos: BodegaMovimiento[] = [];
+  private userSubscription: Subscription | undefined; 
+  
+  totalKilos: number = 0;
+  totalSacos: number = 0;
+  totalDevuelto: number = 0;
+  totalRestante: number = 0;
+  
+  usuarioId: number = 0;
+  tipoUsuario: string = '';
+  usuario: any = {};
 
-  usuarioId: number = 0;
-  tipoUsuario: string = '';
-  usuario: any = {};
+  nuevoMovimiento: BodegaMovimiento = {
+    id: 0,
+    fecha: new Date(),
+    descripcion: '',
+    kilos: 0,
+    sacos: 0,
+    lleva: 'Si',
+    devuelve: '',
+    responsable: '',
+    usuarioId: 0,
+    cant_devuelta: null 
+  };
 
-  nuevoMovimiento: BodegaMovimiento = {
-    id: 0,
-    fecha: new Date(),
-    descripcion: '',
-    kilos: 0,
-    sacos: 0,
-    lleva: '',
-    devuelve: '',
-    responsable: '',
-    usuarioId: 0,
-    cant_devuelta: null
-  };
+  constructor(
+    private bodegaService: BodegaService, 
+    private authService: AuthService, 
+    private modalController: ModalController
+  ) { }
 
-  constructor(private bodegaService: BodegaService, private authService: AuthService, private modalController: ModalController) { }
+  ngOnInit() {
+    this.userSubscription = this.authService.currentUser$.subscribe(user => {
+      this.usuario = user;
+      this.usuarioId = this.usuario?.id ?? 0;
+      this.tipoUsuario = this.usuario?.tipoUsuario ?? '';
+      this.nuevoMovimiento.responsable = this.usuario?.nombre ?? ''; 
+      this.cargarMovimientos();
+    });
+  }
 
-  ngOnInit() {
-    this.authService.currentUser$.subscribe(user => {
-      this.usuario = user;
-      this.usuarioId = this.usuario?.id ?? 0;
-      this.tipoUsuario = this.usuario?.tipoUsuario ?? '';
-      this.cargarMovimientos();
-    });
-  }
+  ngOnDestroy(): void {
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
+  }
 
-  cargarMovimientos() {
-    this.bodegaService.obtenerMovimientos().subscribe(data => {
-      // Asegura que venga el campo cantidadDevuelta, si no, lo setea como null
-      this.movimientos = (data || []).map(m => ({
-        ...m,
-        cantidadDevuelta: (m as any).cantidadDevuelta ?? (m as any).cantidad_devuelta ?? null
-      }));
-      // guardar selección previa de devuelve
-      this.devuelvePrevio.clear();
-      for (const m of this.movimientos) this.devuelvePrevio.set(m.id, (m.devuelve as any) ?? '');
-    });
-  }
+  cargarMovimientos() {
+    this.bodegaService.obtenerMovimientos().subscribe(data => {
+      this.movimientos = (data || []).map(m => ({
+        ...m,
+        kilos: Number(m.kilos) || 0,
+        sacos: Number(m.sacos) || 0,
+        // Aseguramos que 'cant_devuelta' se lea correctamente desde cualquiera de los posibles nombres de campo
+        cant_devuelta: Number((m as any).cant_devuelta) || Number((m as any).cantidadDevuelta) || Number((m as any).cantidad_devuelta) || null,
+        devuelve: m.devuelve || ''
+      }));
 
-  /** Ajusta la hora al huso horario de Ecuador (GMT-5) */
-  private getEcuadorTime(): string {
-    const localTime = new Date();  // Hora local del navegador
-    const ecuadorOffset = -5 * 60; // Ecuador (GMT-5) en minutos
-    const utcTime = localTime.getTime(); // Hora UTC
-    const ecuadorTime = utcTime + (ecuadorOffset * 60000); // Ajuste a Ecuador
+      this.calcularTotales();
+    });
+  }
 
-    const ecuadorDate = new Date(ecuadorTime); // Nueva fecha ajustada a Ecuador
-    return ecuadorDate.toISOString(); // Convertimos a formato ISO string (incluye la zona horaria de Ecuador)
-  }
+  calcularTotales() {
+    this.totalKilos = this.movimientos.reduce((sum, mov) => sum + (mov.kilos || 0), 0);
+    this.totalSacos = this.movimientos.reduce((sum, mov) => sum + (mov.sacos || 0), 0);
+    
+    // Solo sumamos la cantidad devuelta si 'devuelve' es 'Si'
+    this.totalDevuelto = this.movimientos
+      .filter(mov => mov.devuelve === 'Si')
+      .reduce((sum, mov) => sum + (mov.cant_devuelta || 0), 0);
 
+    this.totalRestante = this.totalSacos - this.totalDevuelto; 
+  }
 
-  agregarMovimiento() {
-    this.nuevoMovimiento.usuarioId = this.usuarioId;
-    // Asignar la hora exacta de Ecuador al campo 'fecha'
-    this.nuevoMovimiento.fecha = this.getEcuadorTime();
+  private getEcuadorTime(): string {
+    const localTime = new Date(); 
+    const ecuadorOffset = -5 * 60; 
+    const utcTime = localTime.getTime(); 
+    const ecuadorTime = utcTime + (ecuadorOffset * 60000) + (localTime.getTimezoneOffset() * 60000); 
+    const ecuadorDate = new Date(ecuadorTime); 
+    return ecuadorDate.toISOString(); 
+  }
 
-    console.log(this.nuevoMovimiento.fecha);
-    // la devolución por defecto puede ir vacía
-    if (this.nuevoMovimiento.devuelve == null) this.nuevoMovimiento.devuelve = '';
-    if (this.nuevoMovimiento.lleva == null || this.nuevoMovimiento.lleva === '') {
-      // fuerza que Lleva sea "Si" o "No"
-      this.nuevoMovimiento.lleva = 'Si';
-    }
+  agregarMovimiento() {
+    this.nuevoMovimiento.usuarioId = this.usuarioId;
+    this.nuevoMovimiento.fecha = this.getEcuadorTime();
+    this.nuevoMovimiento.kilos = Number(this.nuevoMovimiento.kilos);
+    this.nuevoMovimiento.sacos = Number(this.nuevoMovimiento.sacos);
+    this.nuevoMovimiento.lleva = 'Si';
+    this.nuevoMovimiento.devuelve = '';
+    this.nuevoMovimiento.responsable = this.usuario?.nombre || 'Desconocido';
 
-    this.bodegaService.agregarMovimiento(this.nuevoMovimiento).subscribe(() => {
-      this.cargarMovimientos();
-      this.nuevoMovimiento = {
-        id: 0,
-        fecha: new Date(),
-        descripcion: '',
-        kilos: 0,
-        sacos: 0,
-        lleva: '',
-        devuelve: '',
-        responsable: '',
-        usuarioId: this.usuarioId,
-        cant_devuelta: null
-      };
-    });
-  }
+    this.bodegaService.agregarMovimiento(this.nuevoMovimiento).subscribe({
+      next: () => {
+        this.cargarMovimientos();
+        this.nuevoMovimiento = {
+          id: 0, fecha: new Date(), descripcion: '', kilos: 0, sacos: 0,
+          lleva: 'Si', devuelve: '', responsable: this.usuario?.nombre || 'Desconocido',
+          usuarioId: this.usuarioId, cant_devuelta: null
+        };
+      },
+      error: (err) => console.error('Error al agregar movimiento', err)
+    });
+  }
 
-  /** Devuelve true si el movimiento se puede editar (mismo día). */
-  isEditable(mov: BodegaMovimiento): boolean {
-    const f = new Date(mov.fecha);  // Fecha del movimiento
-    const hoy = new Date();          // Fecha actual
-    return f.getFullYear() === hoy.getFullYear() &&
-      f.getMonth() === hoy.getMonth() &&
-      f.getDate() === hoy.getDate();  // Verifica si las fechas son del mismo día
-  }
+// Nuevo método para determinar si el select de 'Devuelve' debe estar deshabilitado
+isDevuelveDisabled(mov: BodegaMovimiento): boolean {
+    const rolesAutorizados = ['Administrador', 'Secretaria', 'Ingeniero'];
+    const esRolAutorizado = rolesAutorizados.includes(this.tipoUsuario);
+    
+    if (!esRolAutorizado) {
+        const nombreUsuarioActual = this.usuario?.nombre ?? '';
+        
+        const esResponsable = nombreUsuarioActual === mov.responsable;
+        const estaPendiente = mov.devuelve === '' || mov.devuelve === null;
 
-  /** Cambia color de fila cuando Devuelve = '' (Ninguno) – si la usas en HTML */
-  getDevuelveCellClass(mov: BodegaMovimiento) {
-    return mov.devuelve === '' ? 'warn-cell' : '';
-  }
+        return !(esResponsable && estaPendiente);
+    }
 
-  /** Se llama cuando cambia el select de "Devuelve" en la tabla */
-  onDevuelveChange(mov: BodegaMovimiento) {
-    if (mov.devuelve === 'Si') {
-      this.openModal(mov); // Abre el modal si selecciona "Sí"
-    } else if (mov.devuelve === 'No' || mov.devuelve === '') {
-      mov.cant_devuelta = null;  // Limpiamos la cantidad devuelta si se selecciona "No" o "Ninguno"
-    }
-
-    if (this.tipoUsuario == "Administrador" || this.tipoUsuario == "Secretaria" || this.tipoUsuario == "Ingeniero") {
-      const payload = {
-        devuelve: mov.devuelve === null ? "" : mov.devuelve,
-        cantidadDevuelta: mov.cant_devuelta
-      };
-
-      // Llamamos al servicio para guardar la actualización en la base de datos
-      this.bodegaService.actualizarDevolucion(mov.id, payload).subscribe({
-        next: (response) => {
-          console.log('Devolución actualizada', response);
-          this.cargarMovimientos();  // Recargamos los movimientos después de la actualización
-        },
-        error: (error) => {
-          console.error('Error al actualizar la devolución', error);
-        }
-      });
-    }
-  }
+    return false;
+}
 
 
-  async openModal(mov: BodegaMovimiento) {
-    const modal = await this.modalController.create({
-      component: CantidadDevueltaModalComponent,
-      componentProps: {
-        movimiento: mov
-      }
-    });
+  /** Se llama cuando cambia el select de "Devuelve" en la tabla */
+async onDevuelveChange(mov: BodegaMovimiento) {
+    // Caso 1: Se selecciona 'Si' -> Abrir modal para ingresar cantidad
+    if (mov.devuelve === 'Si') {
+        
+        const modal = await this.modalController.create({ 
+            component: CantidadDevueltaModalComponent, 
+            componentProps: {
+                movimiento: mov, // Pasamos el movimiento actual
+            },
+        });
 
-    modal.onDidDismiss().then((data) => {
-      // Si se ha guardado la cantidad devuelta en el modal, la persistimos
-      if (data.data !== undefined) {
-        mov.cant_devuelta = data.data;
-        this.guardarDevolucion(mov);
-      }
-    });
+        await modal.present();
 
-    await modal.present();
-  }
+        // Utilizamos onWillDismiss para capturar el rol y los datos.
+        const { data, role } = await modal.onWillDismiss(); 
 
-  /** Botón Guardar visible cuando Devuelve = "Si" */
-  guardarDevolucion(mov: BodegaMovimiento) {
-    if (!this.isEditable(mov)) {
-      alert('Solo puedes modificar la devolución el mismo día del movimiento.');
-      return;
-    }
-    const cantidad = Number(mov.cant_devuelta ?? 0);
-    if (isNaN(cantidad) || cantidad < 0) {
-      alert('Ingrese una cantidad devuelta válida (>= 0).');
-      return;
-    }
+        // 1. Verificar si el modal se cerró con la acción de guardar
+        if (role === 'guardar' && data && data.cantidadDevuelta !== undefined && data.cantidadDevuelta !== null) {
+            
+            const cantidadAEnviar = data.cantidadDevuelta;
 
-    if (cantidad > mov.sacos) {
-      alert('La cantidad ingresada es mayor a la que se llevo.');
-      this.cargarMovimientos();
-      return;
-    } else {
-      const payload = { devuelve: 'Si' as const, cantidadDevuelta: cantidad };
-      this.bodegaService.actualizarDevolucion(mov.id, payload).subscribe({
-        next: () => {
-          this.devuelvePrevio.set(mov.id, 'Si');
-          this.cargarMovimientos();
-        },
-        error: () => alert('No se pudo guardar la devolución')
-      });
-    }
+            // 2. Actualizamos el modelo local ANTES de la llamada a la API
+            mov.cant_devuelta = cantidadAEnviar;
+            
+            // ENVIAMOS LA CANTIDAD DEVUELTA DE VUELTA A LA API
+            this.guardarDevolucion(mov.id, { 
+                devuelve: 'Si', 
+                cantidadDevuelta: cantidadAEnviar // <-- ENVIAMOS EL DATO
+            }, false); // <-- Pasamos 'false' para no recargar inmediatamente
+            
+        } else {
+            // 3. Si el usuario cancela o cierra (role !== 'guardar')
+            // Revertimos el estado del select a '' (Pendiente) en la vista
+            mov.devuelve = ''; 
+            
+            // GUARDAMOS LA REVERSIÓN en la API para persistir el estado "Pendiente" y limpiar la cantidad devuelta
+            this.guardarDevolucion(mov.id, { 
+                devuelve: '', // Pendiente
+                cantidadDevuelta: null // <-- LIMPIAMOS EL DATO EN LA API
+            });
+        }
+    } 
+    // Caso 2: Se selecciona 'No' o '' (Pendiente) -> Guardar directamente en la API
+    else {
+        // Limpiar la cantidad devuelta si se selecciona 'No' o 'Pendiente'
+        mov.cant_devuelta = null;
+        
+        this.guardarDevolucion(mov.id, { 
+            devuelve: mov.devuelve as ('' | 'Si' | 'No'), 
+            cantidadDevuelta: null // <-- LIMPIAMOS EL DATO EN LA API
+        });
+    }
+}
 
-  }
+// Función que maneja la llamada a la API para guardar
+// Agregamos el parámetro opcional 'reload'
+guardarDevolucion(id: number, data: { devuelve: '' | 'Si' | 'No'; cantidadDevuelta?: number | null }, reload: boolean = true) {
+    // El servicio debe estar configurado para aceptar tanto 'devuelve' como 'cantidadDevuelta'
+    this.bodegaService.actualizarDevolucion(id, data).subscribe({
+        next: (response) => {
+            console.log('Devolución actualizada', response);
+            
+            // Solo recargamos si no hay un error conocido del backend (como devolver 0)
+            if (reload) {
+              this.cargarMovimientos();
+            } else {
+              // Si no recargamos, la vista se actualizará con el valor local (data.cantidadDevuelta)
+              this.calcularTotales(); // Recalculamos totales basados en la data local
+            }
+        },
+        error: (err) => {
+            console.error('Error al actualizar devolución', err);
+            // Si hay error, sí forzamos una recarga para ver el estado real
+            this.cargarMovimientos(); 
+        }
+    });
+}
 }
