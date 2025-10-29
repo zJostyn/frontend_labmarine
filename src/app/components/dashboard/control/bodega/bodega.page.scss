@@ -1,0 +1,142 @@
+/* CSS para el contenido */
+.content-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Estilo para el formulario */
+.form-container {
+  width: 90%;
+  max-width: 600px;
+  margin-bottom: 30px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+/* Estilo de los formularios de Ion */
+ion-item {
+  margin-bottom: 15px;
+}
+
+ion-button {
+  margin-top: 20px;
+}
+
+/* Submenú de cantidad devuelta */
+.sub-devol {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Estilo de la tabla */
+.table-container {
+  width: 90%;
+  max-width: 900px;
+  margin-top: 30px;
+}
+
+.movimientos-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.movimientos-table th, .movimientos-table td {
+  padding: 15px;
+  text-align: center;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.movimientos-table th {
+  background-color: #4CAF50;
+  color: white;
+  font-weight: bold;
+}
+
+.movimientos-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.movimientos-table tr:hover {
+  background-color: #ddd;
+}
+
+/* Estilo de los select y input */
+select, ion-input {
+  padding: 5px;
+  width: 100%;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+select {
+  background-color: #fff;
+  border-color: #ccc;
+}
+
+/* Cambiar color de toda la fila cuando Devuelve está vacío (Ninguno) */
+.red-row {
+  color: rgb(255, 0, 0);  /* Cambiar el color del texto para que sea legible */
+}
+
+/* Otros estilos de la tabla */
+.movimientos-table th, .movimientos-table td {
+  padding: 15px;
+  text-align: center;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.movimientos-table th {
+  background-color: #4CAF50;
+  color: white;
+  font-weight: bold;
+}
+
+.movimientos-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.movimientos-table tr:hover {
+  background-color: #ddd;
+}
+
+/* Submenú de cantidad devuelta */
+.sub-devol {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Responsividad: La tabla y el formulario se adaptan a pantallas pequeñas */
+@media (max-width: 768px) {
+  .movimientos-table th, .movimientos-table td {
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  .form-container {
+    width: 100%;
+    padding: 15px;
+  }
+}

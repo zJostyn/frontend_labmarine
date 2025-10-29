@@ -1,0 +1,47 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title> 
+      <h1 style="position: relative; top: 10px;">{{ pageTitle }}</h1>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-menu class="ion-padding" contentId="main-content" (ionWillOpen)="cargarDatosUsuario()">
+  <ion-content>
+    <div class="user-info">
+      <img src="assets/icon/logo.png" class="avatar" />
+      <h4 class="name">{{ usuario.name }}</h4>
+      <h4 class="role">{{ usuario.role }}</h4>
+    </div>
+
+    <ion-list>
+      <!-- Inicio -->
+      <ion-menu-toggle>
+        <ion-item button routerLink="/main/home">
+          <ion-icon slot="start" name="home"></ion-icon>
+          <ion-label>Inicio</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+
+      <ion-menu-toggle>
+        <ion-item button routerLink="/main/control/bodega">
+          <ion-icon slot="start" name="file-tray-stacked"></ion-icon>
+          <ion-label>Control Bodega</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+
+      <!-- Cerrar sesión -->
+      <ion-menu-toggle>
+        <ion-item button (click)="alertaLogout()">
+          <ion-icon slot="start" name="log-out"></ion-icon>
+          <ion-label>Salir</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+    </ion-list>
+  </ion-content>
+</ion-menu>
+
+<ion-router-outlet id="main-content"></ion-router-outlet>

@@ -1,0 +1,86 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Control de Bodega</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding content-container">
+
+  <!-- Formulario para agregar un nuevo movimiento -->
+  <div class="form-container">
+    <h3>Agregar Nuevo Movimiento</h3>
+    <form (ngSubmit)="agregarMovimiento()" #bodegaForm="ngForm">
+      <ion-item>
+        <ion-label>Descripción</ion-label>
+        <ion-input [(ngModel)]="nuevoMovimiento.descripcion" name="descripcion" required></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Kilos</ion-label>
+        <ion-input [(ngModel)]="nuevoMovimiento.kilos" name="kilos" type="number" required></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Sacos</ion-label>
+        <ion-input [(ngModel)]="nuevoMovimiento.sacos" name="sacos" type="number" required></ion-input>
+      </ion-item>
+
+      <!--<ion-item>
+        <ion-label>Lleva</ion-label>
+        <ion-select [(ngModel)]="nuevoMovimiento.lleva" name="lleva" required>
+          <ion-select-option value="Si" default>Sí</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Devuelve</ion-label>
+        <ion-select [(ngModel)]="nuevoMovimiento.devuelve" name="devuelve"
+          (ngModelChange)="onDevuelveChange(nuevoMovimiento)">
+          <ion-select-option value="Si">Sí</ion-select-option>
+          <ion-select-option value="No">No</ion-select-option>
+          <ion-select-option value="">Ninguno</ion-select-option>
+        </ion-select>
+      </ion-item> -->
+
+      <ion-button expand="full" type="submit" [disabled]="!bodegaForm.form.valid">Registrar Movimiento</ion-button>
+    </form>
+  </div>
+
+  <!-- Tabla de movimientos -->
+  <div class="table-container">
+    <h3>Movimientos Registrados</h3>
+    <table class="movimientos-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Descripción</th>
+          <th>Kilos</th>
+          <th>Sacos</th>
+          <th>Lleva</th>
+          <th>Devuelve</th>
+          <th>Cant. Devuelta</th>
+          <th>Responsable</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let mov of movimientos" [ngClass]="{ 'red-row': mov.devuelve === '' || mov.devuelve == null }">
+          <td>{{ mov.fecha | date: 'short' }}</td>
+          <td>{{ mov.descripcion }}</td>
+          <td>{{ mov.kilos }}</td>
+          <td>{{ mov.sacos }}</td>
+          <td>{{ mov.lleva }}</td>
+          <td>
+            <select [(ngModel)]="mov.devuelve" (ngModelChange)="onDevuelveChange(mov)"
+              [disabled]="tipoUsuario === 'Trabajador' && mov.devuelve !== ''">
+              <option value="Si">Sí</option>
+              <option value="No">No</option>
+              <option value="">Ninguno</option>
+            </select>
+          </td>
+          <td>{{ mov.cant_devuelta }}</td>
+          <td>{{ mov.responsable }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</ion-content>

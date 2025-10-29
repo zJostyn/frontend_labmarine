@@ -1,0 +1,49 @@
+<ion-content class="login-page">
+  <div class="left">
+    <div class="login-box">
+      <img class="avatar" src="assets/icon/logo.png">
+      <h1>Inicio de sesión</h1>
+
+      <form [formGroup]="loginForm" (ngSubmit)="logearse(loginForm.value)">
+        <ion-item>
+          <ion-label position="floating">Usuario</ion-label>
+          <ion-input formControlName="usuario" type="text"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="floating">Contraseña</ion-label>
+          <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password"></ion-input>
+          <ion-icon slot="end" [name]="showPassword ? 'eye-off' : 'eye'" (click)="togglePassword()"
+            style="cursor: pointer; position: relative; top: 17px;"></ion-icon>
+        </ion-item>
+
+        <ion-row>
+          <ion-col [size]="12">
+            <ion-button expand="block" type="submit" [disabled]="loginForm.invalid || isSubmitting"
+              class="ion-no-padding">
+              <ng-container *ngIf="!isSubmitting; else logging">
+                Iniciar Sesión
+                <ion-icon name="log-in-outline" slot="end"></ion-icon>
+              </ng-container>
+              <ng-template #logging>
+                <ion-spinner name="crescent" slot="start"></ion-spinner>
+                Conectando…
+              </ng-template>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </form>
+    </div>
+  </div>
+
+  <!-- Mensajes de éxito y error -->
+
+  <div id="mensajeError" class="mensaje-error">
+    <img class="img" src="assets/images/errorregistro.png" alt="">
+    <div>
+      <p class="txt">¡Ocurrió un problema!</p>
+      <p class="txtdos">{{errorMsg}}</p>
+    </div>
+  </div>
+  
+</ion-content>

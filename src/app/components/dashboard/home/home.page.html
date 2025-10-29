@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Dashboard</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-grid>
+    <ion-row>
+      <ion-col size="12" size-md="8">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>
+              <h2>Bienvenido, {{ usuario.nombre }} al Sistema de LABMARINE</h2>
+              <br>
+            </ion-card-title>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+
+      <!-- Información del usuario -->
+      <ion-col size="12" size-md="4">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-subtitle color="primary">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              Información del {{ usuario.tipoUsuario }}
+            </ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <p>Nombre: {{ usuario.nombre }}</p>
+            <p>Usuario: {{ usuario.usuario }}</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
