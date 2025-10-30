@@ -27,7 +27,7 @@ const routes: Routes = [
       import('./components/auth/login/login.page').then(m => m.LoginPage),
     canActivate: [LoginGuard]
   },
-  { path: '**', redirectTo: 'login', pathMatch: 'full' },
+  { path: '**', redirectTo: 'login', pathMatch: 'full' }
 ];
 
 @NgModule({

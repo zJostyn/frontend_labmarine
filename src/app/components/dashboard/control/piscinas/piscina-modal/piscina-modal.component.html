@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ isEditMode ? 'Editar Piscina' : 'Nueva Piscina' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarModal()">Cerrar</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="form" (ngSubmit)="guardarCambios()">
+    <ion-item>
+      <ion-label position="floating">Nombre de la Piscina</ion-label>
+      <ion-input formControlName="nombre" type="text" required></ion-input>
+    </ion-item>
+    <div *ngIf="form.get('nombre')?.invalid && form.get('nombre')?.touched" class="error-message">
+      El nombre es requerido.
+    </div>
+
+    <ion-item>
+      <ion-label position="floating">Hectáreas (ha)</ion-label>
+      <ion-input formControlName="hectareas" type="number" required></ion-input>
+    </ion-item>
+     <div *ngIf="form.get('hectareas')?.invalid && form.get('hectareas')?.touched" class="error-message">
+      Las hectáreas son requeridas.
+    </div>
+
+    <ion-item>
+      <ion-label>Categoría</ion-label>
+      <ion-select formControlName="categoria" interface="popover">
+        <ion-select-option value="Precria">Precria</ion-select-option>
+        <ion-select-option value="Madre">Madre</ion-select-option>
+        <ion-select-option value="Piscina">Piscina</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-button expand="block" type="submit" color="success" type="submit" class="ion-margin-top" [disabled]="form.invalid">
+      {{ isEditMode ? 'Guardar Cambios' : 'Crear Piscina' }}
+    </ion-button>
+  </form>
+</ion-content>

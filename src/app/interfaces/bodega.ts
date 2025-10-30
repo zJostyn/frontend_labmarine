@@ -9,4 +9,5 @@ export interface BodegaMovimiento {
   responsable: string;
   usuarioId: number;
   cant_devuelta: number | null;
+  corrida_id: number | null;
 }

@@ -1,0 +1,50 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Corridas Activas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-refresher slot="fixed" (ionRefresh)="cargarCorridas($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="corridas.length === 0" class="ion-text-center ion-padding">
+    <ion-icon name="boat-outline" size="large" color="medium"></ion-icon>
+    <p>No hay corridas registradas.</p>
+  </div>
+
+  <ion-card *ngFor="let corrida of corridas">
+    <ion-card-header>
+      <ion-card-subtitle>Iniciada el: {{ corrida.fecha_inicio | date:'dd/MM/yyyy' }}</ion-card-subtitle>
+      <ion-card-title>Corrida #{{ corrida.id }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item lines="none">
+        <ion-icon name="bug" slot="start" color="tertiary"></ion-icon>
+        <ion-label>
+          <h3>Lote: {{ corrida.larva?.lote_laboratorio || 'N/A' }}</h3>
+          <p>Origen: {{ corrida.larva?.laboratorio_origen || 'N/A' }}</p>
+        </ion-label>
+      </ion-item>
+
+      <div class="piscinas-list">
+        <h4>Piscinas sembradas:</h4>
+        <ion-chip *ngFor="let piscina of corrida.piscinas" color="primary" outline="true">
+          <ion-icon name="water"></ion-icon>
+          <ion-label>{{ piscina.nombre }}</ion-label>
+        </ion-chip>
+        <p *ngIf="corrida.piscinas.length === 0">Ninguna piscina asignada.</p>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="abrirModal()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

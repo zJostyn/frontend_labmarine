@@ -1,0 +1,18 @@
+// --- VARIABLES ---
+$primary: var(--ion-color-primary, #3880ff);
+$success: #4CAF50;
+$danger: #f44336;
+$white: #ffffff;
+$shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+.error-message {
+  color: var(--ion-color-danger);
+  font-size: 0.8em;
+  padding-left: 16px;
+  padding-top: 4px;
+}
+
+ion-toolbar {
+  --color: white;
+  --background: #19457C;
+}

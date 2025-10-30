@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Nueva Corrida</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarModal()">CERRAR</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="form" (ngSubmit)="guardarCorrida()">
+    <ion-list lines="none">
+
+      <ion-item fill="solid" shape="round" class="ion-margin-bottom">
+        <ion-label>Lote de Larvas</ion-label>
+        <ion-select formControlName="larva_id" interface="action-sheet" placeholder="Seleccionar lote">
+          <ion-select-option *ngFor="let larva of lotesDeLarvas" [value]="larva.id">
+            {{ larva.lote_laboratorio }} ({{ larva.laboratorio_origen }})
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item fill="solid" shape="round" class="ion-margin-bottom">
+        <ion-label>Piscinas a Sembrar</ion-label>
+        <ion-select formControlName="piscinaIds" multiple="true" interface="action-sheet" placeholder="Seleccionar piscinas">
+          <ion-select-option *ngFor="let piscina of piscinasDisponibles" [value]="piscina.id">
+            {{ piscina.nombre }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item fill="solid" shape="round" class="ion-margin-bottom">
+        <ion-label>Fecha de Inicio</ion-label>
+        <ion-datetime-button slot="end" datetime="fecha_inicio_picker"></ion-datetime-button>
+      </ion-item>
+
+      <ion-item fill="solid" shape="round" class="ion-margin-bottom">
+        <ion-label position="floating">Densidad (larvas/m²)</ion-label>
+        <ion-input formControlName="densidad" type="number" required></ion-input>
+      </ion-item>
+
+    </ion-list>
+
+    <ion-modal [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime id="fecha_inicio_picker" formControlName="fecha_inicio" presentation="date"></ion-datetime>
+      </ng-template>
+    </ion-modal>
+
+    <ion-button expand="block" shape="round" type="submit" class="ion-margin-top" [disabled]="form.invalid">
+      <ion-icon name="analytics-outline" slot="start"></ion-icon>
+      Iniciar Corrida
+    </ion-button>
+  </form>
+</ion-content>

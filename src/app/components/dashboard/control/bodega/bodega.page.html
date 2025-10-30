@@ -12,6 +12,20 @@
       <h3 class="ion-text-center">Agregar Nuevo Movimiento</h3>
       <form (ngSubmit)="agregarMovimiento()" #bodegaForm="ngForm">
 
+        <!-- --- CAMBIO EN ESTE BLOQUE --- -->
+        <ion-item lines="none" class="ion-margin-vertical input-item-custom">
+          <!-- 1. Quitamos position="stacked" para que la etiqueta quede a la izquierda -->
+          <ion-label>Asignar a Corrida</ion-label>
+          <!-- 2. Añadimos slot="end" para mover el selector a la derecha -->
+          <ion-select [(ngModel)]="nuevoMovimiento.corrida_id" name="corrida_id" interface="action-sheet"
+            placeholder="Elegir..." required slot="end">
+            <ion-select-option *ngFor="let corrida of corridasDisponibles" [value]="corrida.id">
+              Corrida #{{corrida.id}} ({{corrida.fecha_inicio | date:'dd/MM/yy'}})
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        <!-- --- FIN DEL CAMBIO --- -->
+
         <ion-item lines="none" class="ion-margin-vertical input-item-custom">
           <ion-label position="stacked">Descripción</ion-label>
           <ion-input [(ngModel)]="nuevoMovimiento.descripcion" name="descripcion" required
@@ -31,7 +45,7 @@
         </ion-item>
 
         <ion-button expand="block" type="submit" color="success"
-          [disabled]="!bodegaForm.form.valid || nuevoMovimiento.kilos <= 0 || nuevoMovimiento.sacos <= 0"
+          [disabled]="!bodegaForm.form.valid || nuevoMovimiento.kilos <= 0 || nuevoMovimiento.sacos <= 0 || !nuevoMovimiento.corrida_id"
           class="ion-margin-top register-button">
           <ion-icon name="save-outline" slot="start"></ion-icon>
           Registrar Movimiento
@@ -42,12 +56,25 @@
     <div class="tables-wrapper">
 
       <div class="table-container ion-margin-bottom">
-        <h3 class="ion-text-center">Movimientos Registrados</h3>
+        <h3 class="ion-text-center">Movimientos Registrados en Bodega</h3>
+
+        <ion-item lines="none" class="ion-margin-bottom input-item-custom">
+          <ion-label>Filtrar por Corrida</ion-label>
+          <ion-select [(ngModel)]="corridaSeleccionadaId" (ionChange)="filtrarMovimientos()" interface="action-sheet"
+            slot="end">
+            <ion-select-option value="todos">Todas las Corridas</ion-select-option>
+            <ion-select-option *ngFor="let corrida of corridasDisponibles" [value]="corrida.id">
+              Corrida #{{corrida.id}} ({{corrida.fecha_inicio | date:'dd/MM/yy'}})
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
         <div class="responsive-table-wrap">
           <table class="movimientos-table">
             <thead>
               <tr>
                 <th>Fecha</th>
+                <th>Corrida #</th>
                 <th>Descripción</th>
                 <th>Kilos</th>
                 <th>Sacos (Llevados)</th>
@@ -58,14 +85,15 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let mov of movimientos"
+              <tr *ngFor="let mov of movimientosFiltrados"
                 [ngClass]="{ 'warn-row': mov.devuelve === '' || mov.devuelve == null || (mov.devuelve === 'Si' && mov.cant_devuelta === null) }">
-                <td>{{ mov.fecha | date: 'dd/MM/yyyy' }}</td>
-                <td>{{ mov.descripcion }}</td>
-                <td>{{ mov.kilos }}</td>
-                <td>{{ mov.sacos }}</td>
-                <td>{{ mov.lleva }}</td>
-                <td>
+                <td data-label="Fecha">{{ mov.fecha | date: 'dd/MM/yyyy' }}</td>
+                <td data-label="Corrida #">{{ mov.corrida_id || 'N/A' }}</td>
+                <td data-label="Descripción">{{ mov.descripcion }}</td>
+                <td data-label="Kilos">{{ mov.kilos }}</td>
+                <td data-label="Sacos (Llevados)">{{ mov.sacos }}</td>
+                <td data-label="Lleva">{{ mov.lleva }}</td>
+                <td data-label="Devuelve">
                   <select [(ngModel)]="mov.devuelve" (ngModelChange)="onDevuelveChange(mov)" name="devuelve_{{mov.id}}"
                     [disabled]="isDevuelveDisabled(mov)">
                     <option value="">Pendiente</option>
@@ -73,15 +101,15 @@
                     <option value="No">No</option>
                   </select>
                 </td>
-                <td>{{ mov.cant_devuelta ?? 'N/A' }}</td>
-                <td>{{ mov.responsable }}</td>
+                <td data-label="Cant. Devuelta">{{ mov.cant_devuelta ?? 'N/A' }}</td>
+                <td data-label="Responsable">{{ mov.responsable }}</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <div class="totals-container">
+      <div class="totals-container" *ngIf="tipoUsuario != 'Trabajador'">
         <h3 class="ion-text-center">Resumen de Totales</h3>
         <table class="totals-table">
           <thead>
@@ -89,15 +117,15 @@
               <th class="bg-kilos">Total Kilos</th>
               <th class="bg-sacos">Total Sacos (Llevados)</th>
               <th class="bg-devuelto">Total Sacos Devueltos</th>
-              <th class="bg-restante">Total Sacos Restantes</th>
+              <th class="bg-restante">Total Sacos Utilizados</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="bg-kilos">{{ totalKilos | number:'1.0-2' }}</td>
-              <td class="bg-sacos">{{ totalSacos | number:'1.0-2' }}</td>
-              <td class="bg-devuelto">{{ totalDevuelto | number:'1.0-2' }}</td>
-              <td class="bg-restante">{{ totalRestante | number:'1.0-2' }}</td>
+              <td data-label="Total Kilos">{{ totalKilos | number:'1.0-2' }}</td>
+              <td data-label="Sacos (Llevados)">{{ totalSacos | number:'1.0-2' }}</td>
+              <td data-label="Sacos Devueltos">{{ totalDevuelto | number:'1.0-2' }}</td>
+              <td data-label="Sacos Utilizados">{{ totalRestante | number:'1.0-2' }}</td>
             </tr>
           </tbody>
         </table>

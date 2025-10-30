@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title> 
+    <ion-title>
       <h1 style="position: relative; top: 10px;">{{ pageTitle }}</h1>
     </ion-title>
   </ion-toolbar>
@@ -32,6 +32,35 @@
           <ion-label>Control Bodega</ion-label>
         </ion-item>
       </ion-menu-toggle>
+
+      <ion-accordion-group *ngIf="usuario.role != 'Trabajador'">
+        <ion-accordion value="registrar" toggleIcon="">
+          <ion-item slot="header" button detail-none>
+            <ion-icon slot="start" name="add-circle"></ion-icon>
+            <ion-label>Registrar Datos</ion-label>
+          </ion-item>
+          <div slot="content">
+            <!-- Cada opción en su propio menu-toggle -->
+            <ion-menu-toggle>
+              <ion-item button routerLink="/main/control/piscinas" detail-none class="sub-item">
+                <ion-label>Registrar Piscina</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+
+            <ion-menu-toggle>
+              <ion-item button routerLink="/main/control/larvas" detail-none class="sub-item">
+                <ion-label>Registrar Lote Larva</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+
+            <ion-menu-toggle>
+              <ion-item button routerLink="/main/control/corridas" detail-none class="sub-item">
+                <ion-label>Registrar Corrida</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+          </div>
+        </ion-accordion>
+      </ion-accordion-group>
 
       <!-- Cerrar sesión -->
       <ion-menu-toggle>

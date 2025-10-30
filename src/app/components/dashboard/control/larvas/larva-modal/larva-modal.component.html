@@ -1,0 +1,67 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ isEditMode ? 'Editar Lote' : 'Nuevo Lote de Larvas' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarModal()">CERRAR</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="form" (ngSubmit)="guardarCambios()">
+
+    <ion-list lines="none" class="custom-list">
+
+      <ion-item fill="solid" shape="round" class="ion-margin-bottom">
+        <ion-label position="floating">Lote (Código de Laboratorio)</ion-label>
+        <ion-input formControlName="lote_laboratorio" type="text" required></ion-input>
+      </ion-item>
+      <div *ngIf="form.get('lote_laboratorio')?.invalid && form.get('lote_laboratorio')?.touched" class="error-message">
+        El código del lote es requerido.
+      </div>
+
+      <ion-item fill="solid" shape="round" class="ion-margin-bottom">
+        <ion-label position="floating">Laboratorio de Origen</ion-label>
+        <ion-input formControlName="laboratorio_origen" type="text" required></ion-input>
+      </ion-item>
+      <div *ngIf="form.get('laboratorio_origen')?.invalid && form.get('laboratorio_origen')?.touched"
+        class="error-message">
+        El laboratorio es requerido.
+      </div>
+
+      <ion-item fill="solid" shape="round" class="ion-margin-bottom">
+        <ion-label>Fecha de Recepción</ion-label>
+        <ion-datetime-button slot="end" datetime="fecha_recepcion_picker"></ion-datetime-button>
+      </ion-item>
+      <div *ngIf="form.get('fecha_recepcion')?.invalid && form.get('fecha_recepcion')?.touched" class="error-message">
+        La fecha es requerida.
+      </div>
+
+      <ion-item fill="solid" shape="round" class="ion-margin-bottom">
+        <ion-label position="floating">Cantidad Inicial (millones)</ion-label>
+        <ion-input formControlName="cantidad_inicial" type="number" required></ion-input>
+      </ion-item>
+      <div *ngIf="form.get('cantidad_inicial')?.invalid && form.get('cantidad_inicial')?.touched" class="error-message">
+        La cantidad es requerida.
+      </div>
+
+      <ion-item fill="solid" shape="round" class="ion-margin-bottom">
+        <ion-label position="floating">Observaciones</ion-label>
+        <ion-textarea formControlName="observaciones" [autoGrow]="true"></ion-textarea>
+      </ion-item>
+
+    </ion-list>
+
+    <ion-modal [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime id="fecha_recepcion_picker" formControlName="fecha_recepcion" presentation="date"></ion-datetime>
+      </ng-template>
+    </ion-modal>
+
+    <ion-button expand="block" color="success" shape="round" type="submit" class="ion-margin-top"
+      [disabled]="form.invalid">
+      <ion-icon name="save-outline" slot="start"></ion-icon>
+      {{ isEditMode ? 'Guardar Cambios' : 'Registrar Lote' }}
+    </ion-button>
+  </form>
+</ion-content>
